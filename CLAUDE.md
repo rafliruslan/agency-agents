@@ -1,102 +1,95 @@
 # CLAUDE.md
 
-This file provides guidance for AI assistants working with this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Repository Overview
+## Project Overview
 
-**The Agency** is a curated collection of 112+ specialized AI agent personalities organized into 11 divisions. Each agent is a complete persona defined in Markdown with YAML frontmatter, covering identity, expertise, deliverables, workflows, and success metrics. The project supports Claude Code as the primary tool and 8+ other AI coding tools via a conversion pipeline.
+**The Agency** is a community-driven collection of specialized AI agent personalities. Each agent is a `.md` file with YAML frontmatter defining a distinct expert persona for use with Claude Code, Cursor, Aider, Windsurf, Gemini, OpenClaw, Qwen, and other AI tools. Source agents live in category directories; conversion scripts generate tool-specific formats.
 
-## Repository Structure
+## Commands
 
+```bash
+# Lint agent files (validates frontmatter + structure)
+./scripts/lint-agents.sh                    # All agents
+./scripts/lint-agents.sh path/to/agent.md   # Single file
+
+# Convert agents to tool-specific integration formats
+./scripts/convert.sh                        # All tools
+./scripts/convert.sh --tool cursor          # Single tool (antigravity|gemini-cli|opencode|cursor|aider|windsurf|openclaw|qwen)
+
+# Install agents to local tool config directories
+./scripts/install.sh                        # Interactive
+./scripts/install.sh --tool claude-code     # Specific tool
 ```
-design/                    # 8 agents — UI Design, UX, Brand, Visual Storytelling, etc.
-engineering/               # 16 agents — Frontend, Backend, Mobile, DevOps, Security, etc.
-game-development/          # 19 agents — Cross-engine + Unity, Unreal, Godot, Roblox subdirs
-marketing/                 # 17 agents — Growth, Content, Social platforms, SEO, etc.
-paid-media/                # 7 agents — PPC, Search, Display, Social, Creative, Tracking
-product/                   # 4 agents — Sprint Planning, Trends, Feedback, Behavioral
-project-management/        # 6 agents — Studio Producer, PM, Operations, Experiments
-testing/                   # 8 agents — QA, Evidence Collection, Performance, API Testing
-support/                   # 6 agents — Customer Support, Analytics, Finance, Infrastructure
-spatial-computing/         # 6 agents — XR/VR/AR, Vision Pro, WebXR, Spatial UI
-specialized/               # 15 agents — Orchestrator, Data, Identity, Blockchain, etc.
-strategy/                  # NEXUS orchestration framework with playbooks and runbooks
-integrations/              # Tool-specific conversion outputs and installation guides
-scripts/                   # convert.sh, install.sh, lint-agents.sh
-examples/                  # Real-world multi-agent collaboration examples
-```
+
+CI runs `lint-agents.sh` on PRs that touch agent directories.
 
 ## Agent File Format
 
-Every agent file is a Markdown document with required YAML frontmatter:
+Every agent file requires YAML frontmatter with three required fields (`name`, `description`, `color`) and optional fields (`emoji`, `vibe`, `services`):
 
 ```yaml
 ---
 name: Agent Name
 description: One-line specialty description
 color: colorname or "#hexcode"
-emoji: 🎯
-vibe: One-line personality hook
-services:                      # Optional — external APIs/services
+emoji: 🎯                                    # optional
+vibe: One-line personality hook               # optional
+services:                                     # optional — external API dependencies
   - name: Service Name
     url: https://service-url.com
-    tier: free|freemium|paid
+    tier: free                                # free, freemium, or paid
 ---
 ```
 
-**Required frontmatter fields:** `name`, `description`, `color`
-
-The body is organized into two semantic groups:
+Sections are grouped into two semantic categories (used by OpenClaw converter to split files):
 
 - **Persona** (who the agent is): Identity & Memory, Communication Style, Critical Rules
 - **Operations** (what the agent does): Core Mission, Technical Deliverables, Workflow Process, Success Metrics, Advanced Capabilities
-
-File naming convention: `<division>-<agent-slug>.md` (e.g., `engineering-frontend-developer.md`), using lowercase kebab-case.
-
-## Linting and Validation
-
-Run the linter before submitting changes to agent files:
-
-```bash
-./scripts/lint-agents.sh              # Lint all agents
-./scripts/lint-agents.sh path/to/file.md  # Lint specific files
-```
 
 The linter enforces:
 - **ERROR** (blocks merge): YAML frontmatter with `name`, `description`, `color` fields
 - **WARN**: Recommended sections — "Identity", "Core Mission", "Critical Rules"
 - **WARN**: Body shorter than 50 words
 
-CI runs this automatically on PRs touching any division directory via `.github/workflows/lint-agents.yml`.
+File naming convention: `<division>-<agent-slug>.md` (e.g., `engineering-frontend-developer.md`), using lowercase kebab-case.
+
+## Repository Structure
+
+```
+design/              # UI, UX, brand, visual storytelling agents
+engineering/         # Frontend, backend, mobile, AI, DevOps, security agents
+game-development/    # Game design, audio; subdirs: godot/, unity/, unreal-engine/, roblox-studio/
+marketing/           # Growth, social media, content, regional/China-market agents
+paid-media/          # PPC, programmatic, paid social, tracking agents
+sales/               # Pipeline, coaching, proposals, outbound agents
+product/             # Prioritization, trends, feedback agents
+project-management/  # Producer, shepherd, operations agents
+testing/             # QA, performance, API, accessibility agents
+support/             # Customer service, analytics, finance agents
+spatial-computing/   # XR, Vision Pro, WebXR agents
+specialized/         # Orchestrator, compliance, identity, blockchain agents
+strategy/            # NEXUS orchestration framework with playbooks and runbooks
+examples/            # Multi-agent workflow demonstrations
+integrations/        # Tool-specific output dirs (generated, mostly gitignored)
+scripts/             # convert.sh, install.sh, lint-agents.sh
+```
 
 ## Tool Integration Pipeline
 
-```bash
-./scripts/convert.sh    # Convert agents to all supported tool formats
-./scripts/install.sh    # Install converted agents to local tool directories
-```
-
 `convert.sh` reads `.md` agents from division directories and generates tool-specific files in `integrations/<tool>/`. Generated files under `integrations/` are gitignored — only the scripts and per-tool README files are committed.
 
-Supported tools: Claude Code, Cursor, GitHub Copilot, Antigravity, Aider, Windsurf, OpenCode, Gemini CLI.
+## Key Conventions
 
-## Key Conventions When Editing Agents
-
-1. **Personality over generics** — agents have distinct voices, not "I am a helpful assistant"
-2. **Concrete deliverables** — real, runnable code examples with syntax highlighting, not pseudocode
-3. **Measurable metrics** — specific numbers like "Page load < 3s on 3G", not "make it faster"
-4. **Proven workflows** — step-by-step battle-tested processes
-5. **Narrow specialization** — deep expertise in one area, not jack-of-all-trades
-6. **Section headers use emojis** for visual scanning (e.g., `## 🧠 Your Identity & Memory`)
-
-## Commit Message Style
-
-Format: `[action] Agent/feature description`
-
-Examples:
-- `Add Solidity Smart Contract Engineer - blockchain security`
-- `Update README: add 25 missing agents`
-- `Fix: update frontmatter validation for emoji/vibe fields`
+- Agent files use emoji headers (🧠, 🎯, 🚨, 📋, etc.) for visual scanning
+- Agents must have narrow specialization, distinct personality, concrete code examples, and measurable success metrics with specific numbers
+- Code examples must be real/runnable with language-specified fenced blocks, not pseudo-code
+- Some categories have subdirectories (e.g., `game-development/godot/`) — the linter and converter scan recursively
+- Agents depending on external services must declare them in `services` frontmatter and still be useful without the API
+- Generated integration files under `integrations/` are gitignored — only `integrations/*/README.md` and `integrations/claude-code/` are committed
+- Line endings are LF for `.md`, `.yml`, `.yaml`, `.sh` (enforced via `.gitattributes`)
+- PR titles follow: "Add [Agent Name] - [Category]"
+- Branch names follow: `add-agent-name`
 
 ## What Not to Do
 
